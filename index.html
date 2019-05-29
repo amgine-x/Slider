@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <title>Tabula Rasa PBSC an aMgine-x production.</title>
+        <style>
+            body {
+                background-color: black
+            }
+        </style>
+        <script src="index.js"></script>
+    </head>
+    <body onload="main()">
+        <div class="input-container">
+            <!-- TODO: set placeholder to currentPBR -->
+            <span>Current Playback Rate</span>
+            <input id="currentPBR" type="text" />
+            <span>Increment</span>
+            <!-- default value 0.005 -->
+            <input id="increment" type="text" placeholder="0.005" />
+            <!-- default playback rate: 1 -->
+            <input id="default" type="text" placeholder="1.00" />
+        </div>
+        <div class="selection-container">
+            <span>Remember Page?</span>
+            <input id="rememberPage" type="checkbox" />
+            <span>Remember Site?</span>
+            <input id="rememberSite" type="checkbox" />
+        </div>
+        <div class="button-container">
+            <input id="update" type="button" value="Save Changes" />
+        </div>
+    </body>
+</html>
