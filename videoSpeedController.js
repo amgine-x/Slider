@@ -14,30 +14,31 @@ function addForeach(o) {
 console.log('tr-location:', document.location.href);
 
 /*
- * TODO: add documentation
- * 
- **/
+* value schema
+* {
+*      www.example.com: {
+*          type: 'domain' or 'page',
+*          PBR: 1.00,
+*          rememberPage: true,
+*          rememberSite: false,
+*          page: 'www.example.com',
+*          domain: 'www.example.com'
+*      }
+* }
+**/
 
 var vids = document.getElementsByTagName('video');
 var currentPBR = 1;
+var increment = 0.005;
+var PBR_width = 10;
+var _default = 1;
 var __vid = vids[0];
-var updateSite = false;
-var updatePage = false;
+var _type = 'domain';
+var url = document.location.href;
 
-main = new main;
+var _main = new main;
 
-chrome.runtime.onMessage.addListener(
-    function (req, send, sendResp) {
-        console.log('tr-rt-msg:', req);
-        sendResp(
-            // TODO: constraints for message type
-            {
-                site: document.location.hostname,
-                url: document.location.href
-            }
-        );
-    }
-);
+
 
 chrome.runtime.sendMessage(
     {
@@ -47,20 +48,55 @@ chrome.runtime.sendMessage(
     function (resp) {
         if (resp.PBR) {
             currentPBR = resp.PBR;
-            /* TODO: debug */
-            main.setPBRs(vids, currentPBR);
-            console.log('trPBR for ' + resp.domain + ':', resp.PBR);
-        }
+            increment = resp.increment;
+            _default = resp.default;
 
-        if (resp.type == 'domain') {
-            updateSite = true;
+            if (__vid) {
+                if (__vid.playbackRate != _default) {
+                    __vid.playbackRate = _default;
+                }
+            }
+
+            _main.setPBRs(vids, currentPBR);
+            console.log('trPBR for ' + resp.domain + ':', currentPBR);
         }
 
         if (resp.type == 'page') {
-            updatePage = true;
+            _type = 'page';
+        } else {
+            _type = 'domain';
         }
     }
 );
+
+
+chrome.runtime.onMessage.addListener(
+    function (req, send, sendResp) {
+        console.log('tr-rt-msg:', req);
+
+        if (req.update_PBR) {
+
+            currentPBR = req.update_PBR;
+            var resp = {
+                update_status: 'done'
+            };
+            console.log('tr-rt-resp:', resp);
+            sendResp(resp);
+            return;
+        }
+
+        var resp = {
+            site: document.location.hostname,
+            url: document.location.href,
+            PBR: currentPBR,
+            type: _type
+        };
+        console.log('tr-rt-resp:', resp);
+        sendResp(resp);
+    }
+);
+
+
 
 var port = chrome.runtime.connect(
     {
@@ -70,13 +106,45 @@ var port = chrome.runtime.connect(
 
 port.onMessage.addListener(
     function (msg) {
-    /* TODO */
-        console.log(msg);
+        console.log('update-msg:', msg);
+
+        if (msg.update) {
+            var valid = false;
+
+            if (msg.update.url.includes(url)) {
+                valid = true;
+            }
+
+            if (msg.update.old.includes(url)) {
+                valid = true;
+            }
+
+            if (valid) {
+                if (msg.update.increment) {
+                    increment = msg.update.increment;
+                }
+
+                if (msg.update.default) {
+                    _default = msg.update.default;
+                }
+
+                if (msg.update.type) {
+                    _type = msg.update.type;
+                }
+
+                if (msg.update.PBR) {
+                    currentPBR = msg.update.PBR;
+                    _main.setPBRs(vids, currentPBR);
+                }
+            }
+        }
     }
 );
 
+
 function main() {
     document.body.click();
+
 
     if (vids.length > 0) {
         console.log('aMgine-x says: "Hello Friend!"');
@@ -84,13 +152,13 @@ function main() {
     }
 
     this.d = function d() {
-        pbr = parseFloat((parseFloat(currentPBR) + parseFloat(0.005)).toFixed(5))
+        pbr = parseFloat((parseFloat(currentPBR) + parseFloat(increment)).toFixed(PBR_width));
         this.setPBRs(vids, pbr);
         currentPBR = pbr;
     };
 
-    this. s = function s() {
-        pbr = parseFloat((parseFloat(currentPBR) - parseFloat(0.005)).toFixed(5))
+    this.s = function s() {
+        pbr = parseFloat((parseFloat(currentPBR) - parseFloat(increment)).toFixed(PBR_width));
         this.setPBRs(vids, pbr);
         currentPBR = pbr;
     };
@@ -100,47 +168,53 @@ function main() {
 
         coll.foreach(function (vid) {
             vid.playbackRate = PBR;
+            currentPBR = PBR;
         });
     };
 
     document.addEventListener(
         'keydown',
         function (e) {
-            /*maintenance*/
             e.key = String(e.key).toLowerCase;
 
             if (e.key == 'd') {
-                main.setPBRs(vids, currentPBR);
-                main.d();
+                _main.setPBRs(vids, currentPBR);
+                _main.d();
             }
 
             if (e.key == 's') {
-                main.setPBRs(vids, currentPBR);
-                main.s();
+                _main.setPBRs(vids, currentPBR);
+                _main.s();
             }
 
             if (e.key == 'r') {
-                main.setPBRs(vids, currentPBR);
-                main.setPBRs(vids, 1);
-                currentPBR = 1;
+                _main.setPBRs(vids, currentPBR);
+                _main.setPBRs(vids, _default);
+                currentPBR = _default;
             }
+
 
             console.log('tr-currentPBR:', currentPBR);
 
-            if (updateSite || updatePage) {
-                var msg = {
-                    PBR: currentPBR
-                };
 
-                if (updateSite) {
-                    msg.type = 'domain';
-                    msg.domain = document.location.hostname;
-                } else {
-                    msg.type = 'page';
-                    msg.page = document.location.href;
-                }
+            var msg = {
+                PBR: currentPBR
+            };
 
+            msg.type = _type;
+
+            if (msg.type == 'domain') {
+                msg.domain = document.location.hostname;
+                msg.rememberSite = true;
+            } else {
+                msg.page = document.location.href;
+                msg.rememberPage = true;
+            }
+
+            try {
                 port.postMessage(msg);
+            } catch (err) {
+
             }
         }
     );
