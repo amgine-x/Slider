@@ -16,7 +16,7 @@ console.log('tr-location:', document.location.href);
 /*
  * TODO: add documentation
  * 
- * */
+ **/
 
 var vids = document.getElementsByTagName('video');
 var currentPBR = 1;
@@ -28,7 +28,7 @@ main = new main;
 
 chrome.runtime.onMessage.addListener(
     function (req, send, sendResp) {
-        console.log(req);
+        console.log('tr-rt-msg:', req);
         sendResp(
             // TODO: constraints for message type
             {

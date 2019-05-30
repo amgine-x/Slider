@@ -3,10 +3,9 @@ console.log('');
 chrome.runtime.onMessage.addListener(
     function (req, send, sendResp) {
         var debugObj = [req, send, sendResp];
-        console.log('trDebug:', debugObj);
 
         if (req.site && req.url) {
-        /* returns domain or page PBR */
+            /* returns domain or page PBR */
 
             /*
              * value schema
@@ -29,6 +28,8 @@ chrome.runtime.onMessage.addListener(
                     });
                 }
             });
+        } else {
+            console.log('tr-rt-msg:', req);
         }
 
         return true;
@@ -67,12 +68,16 @@ function cb(value, sendResp, req) {
 
 chrome.runtime.onConnect.addListener(
     function (port) {
-        console.log('trDebug:', port);
+        if (port.name == 'update_pref') {
+            console.log('popup.js connected!');
+            console.log('adding msg listener to port...');
+            port.postMessage({ data: 'port connected!' });
+        }
 
         port.onMessage.addListener(
             function (msg) {
                 if (msg.PBR) {
-                /* TODO: update site PBR */
+                    /* TODO: update site PBR */
                     obj = {};
                     key = '';
 
@@ -92,6 +97,9 @@ chrome.runtime.onConnect.addListener(
                     chrome.storage.sync.set(
                         obj, function () { }
                     );
+                } else {
+                    // TODO: popup
+                    console.log('tr-port-msg:', msg);
                 }
             }
         );
