@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
 	"name": "tabula_rasa_Playback_Speed_Controller",
-	"version": "3.0",
+	"version": "2.0",
 
 	"background": {
 		"scripts": ["background.js"],
@@ -31,7 +31,7 @@
     "<all_urls>"
   ],
 
-  "browser_action": {
-    "default_popup": "popup.html"
+  "page_action": {
+    "default_popup":  "index.html"
   }
 }
