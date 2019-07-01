@@ -47,6 +47,16 @@ chrome.runtime.onInstalled.addListener(function (details) {
         },
         function () { }
     );
+
+    chrome.storage.sync.set(
+        {
+            keybind: {
+                'increase': 'd',
+                'decrease': 's',
+                'reset': 'r'
+            }
+        }
+    );
 });
 
 
@@ -55,6 +65,24 @@ var url = '';
 
 chrome.runtime.onMessage.addListener(
     function (req, send, sendResp) {
+
+        if (req.updateSettings) {
+            var msg = {
+                updateC: req.updateSettings
+            };
+            update.postMessage(msg);
+
+            return true;
+        }
+
+        if (req.getControls) {
+            chrome.storage.sync.get(['keybind'], function (v) {
+                sendResp(v.keybind);
+            });
+
+            return true;
+        }
+
         chrome.storage.sync.get(['increment'], function (v) {
             if (!v.increment) {
                 prefs.increment = 0.005;

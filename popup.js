@@ -35,8 +35,15 @@ var popupElem = {
     rememberPage: document.getElementById('rememberPage'),
     rememberSite: document.getElementById('rememberSite'),
     update: document.getElementById('update'),
-    reset: document.getElementById('reset')
+    reset: document.getElementById('reset'),
+    settings: document.getElementById('settings')
 };
+
+console.log(popupElem);
+
+popupElem.settings.addEventListener('click', function (e) {
+    chrome.tabs.create({ url: "settings.html" });
+});
 
 console.log('popup-elements:', popupElem);
 
