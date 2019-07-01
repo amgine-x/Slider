@@ -163,7 +163,7 @@ chrome.runtime.sendMessage({ getPref: true }, function (resp) {
                 function (t) {
                     try {
                         chrome.tabs.sendMessage(
-                            t.id, { getPBR: true },
+                            t.id, { getPBR: true, url: t.url },
                             function (resp) {
                                 console.log('tab-msg:', resp);
 
