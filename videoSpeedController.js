@@ -192,8 +192,10 @@ function main() {
             addForeach(coll);
 
             coll.forEach(function (elem) {
-                elem.playbackRate = PBR;
-                currentPBR = PBR;
+                try {
+                    elem.playbackRate = PBR;
+                    currentPBR = PBR;
+                } catch (err) { }
             });
         });
     };
