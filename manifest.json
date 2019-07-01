@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-	"name": "tabula_rasa_Playback_Speed_Controller",
-	"version": "3.0",
+	"name": "Slider",
+	"version": "9.1.1",
 
 	"background": {
 		"scripts": ["background.js"],
@@ -14,7 +14,7 @@
 				"<all_urls>"
 			],
 			"js": [
-				"videoSpeedController.js"
+				"videoSpeedController-Dev.js"
 			],
 			"all_frames": true,
 			"run_at": "document_idle"
@@ -33,5 +33,7 @@
 
   "browser_action": {
     "default_popup": "popup.html"
-  }
+  },
+
+  "options_page": "settings.html"
 }

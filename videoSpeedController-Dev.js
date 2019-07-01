@@ -1,6 +1,6 @@
 
 function addForeach(o) {
-    o.foreach = function (cb) {
+    o.forEach = function (cb) {
         var keys = Object.keys(this)
 
         if (keys.length) {
@@ -34,11 +34,30 @@ var increment = 0.005;
 var PBR_width = 10;
 var _default = 1;
 var __vid = vids[0];
+var __aud = auds[0];
 var _type = 'domain';
 var url = document.location.href;
 
-var _main = new main;
+//controls
+var inc = 'd';
+var dec = 's';
+var reset = 'r';
 
+// TODO: debug
+chrome.runtime.sendMessage(
+    {
+        getControls: true
+    },
+    function (resp) {
+        try {
+            inc = resp.increase;
+            dec = resp.decrease;
+            reset = resp.reset;
+        } catch (err) { }
+    }
+);
+
+var _main = new main;
 
 
 chrome.runtime.sendMessage(
@@ -52,13 +71,19 @@ chrome.runtime.sendMessage(
             increment = resp.increment;
             _default = resp.default;
 
-            if (__vid) {
-                if (__vid.playbackRate != _default) {
-                    __vid.playbackRate = _default;
-                }
-            }
+            coll = [vids, auds];
 
-            _main.setPBRs(vids, currentPBR);
+            coll.forEach(function (c) {
+                addForeach(c);
+
+                c.forEach(function (elem) {
+                    if (elem.playbackRate != _default) {
+                        elem.playbackRate = _default;
+                    }
+                });
+            });
+
+            _main.setPBRs([vids, auds], currentPBR);
             console.log('trPBR for ' + resp.domain + ':', currentPBR);
         }
 
@@ -92,8 +117,12 @@ chrome.runtime.onMessage.addListener(
             PBR: currentPBR,
             type: _type
         };
-        console.log('tr-rt-resp:', resp);
-        sendResp(resp);
+
+        if (req.getPBR && req.url == document.location.href) {
+            console.log('tr-rt-resp:', resp);
+            sendResp(resp);
+            return;
+        }
     }
 );
 
@@ -139,58 +168,80 @@ port.onMessage.addListener(
                 }
             }
         }
+
+        // TODO: debug
+        if (msg.updateC) {
+            inc = msg.updateC.increase;
+            dec = msg.updateC.decrease;
+            reset = msg.updateC.reset;
+        }
     }
 );
 
 
 function main() {
-    document.body.click();
+    if (vids.length > 0 || auds.length > 0) {
+        if (vids.length > 0) {
+            console.log('aMgine-x says: "Hello Friend!"');
+            console.log('tr-video-coll:', vids);
+        }
 
-
-    if (vids.length > 0) {
-        console.log('aMgine-x says: "Hello Friend!"');
-        console.log('tr-video-coll:', vids);
+        if (auds.length > 0) {
+            console.log('aMgine-x says: "Hello Friend!"');
+            console.log('tr-audio-coll:', auds);
+        }
     }
 
-    this.d = function d() {
+    this.inc = function inc() {
         pbr = parseFloat((parseFloat(currentPBR) + parseFloat(increment)).toFixed(PBR_width));
-        this.setPBRs(vids, pbr);
+        this.setPBRs([vids, auds], pbr);
         currentPBR = pbr;
     };
 
-    this.s = function s() {
+    this.dec = function dec() {
         pbr = parseFloat((parseFloat(currentPBR) - parseFloat(increment)).toFixed(PBR_width));
-        this.setPBRs(vids, pbr);
+        this.setPBRs([vids, auds], pbr);
         currentPBR = pbr;
     };
 
-    this.setPBRs = function setPBRs(coll, PBR) {
-        addForeach(coll);
+    this.setPBRs = function setPBRs(colls, PBR) {
+        colls.forEach(function (coll) {
+            addForeach(coll);
 
-        coll.foreach(function (vid) {
-            vid.playbackRate = PBR;
-            currentPBR = PBR;
+            coll.forEach(function (elem) {
+                try {
+                    elem.playbackRate = PBR;
+                    currentPBR = PBR;
+                } catch (err) { }
+            });
         });
     };
+
+    this.controls = [
+        inc, dec, reset
+    ];
 
     document.addEventListener(
         'keydown',
         function (e) {
             e.key = String(e.key).toLowerCase;
 
-            if (e.key == 'd') {
-                _main.setPBRs(vids, currentPBR);
-                _main.d();
+            _main.controls.forEach(function (k) {
+                if (e.key == k) {
+                    _main.setPBRs([vids, auds], currentPBR);
+                }
+            });
+
+            if (e.key == inc) {
+                _main.inc();
             }
 
-            if (e.key == 's') {
-                _main.setPBRs(vids, currentPBR);
-                _main.s();
+            if (e.key == dec) {
+                _main.dec();
             }
 
-            if (e.key == 'r') {
-                _main.setPBRs(vids, currentPBR);
-                _main.setPBRs(vids, _default);
+            if (e.key == reset) {
+                _main.setPBRs([vids, auds], _default);
                 currentPBR = _default;
             }
 

@@ -1,0 +1,50 @@
+<html>
+    <head>
+        <title>Slider settings</title>
+    </head>
+    <body>
+        <div id="heading">
+            Slider Shortcuts
+        </div>
+        <div class="input-container">
+            <!-- TODO: set placeholders -->
+            <div>
+                <span>Increase</span>
+                <input id="increase" type="text" placeholder="d" />
+            </div>
+            <div>
+                <span>Decrease</span>
+                <input id="decrease" type="text" placeholder="s" />
+            </div>
+            <div>
+                <span>Reset</span>
+                <input id="reset" type="text" placeholder="r" />
+            </div>
+            <div>
+                <input id="save" type="button" value="Save Changes" />
+                <input id="default" type="button" value="Default" />
+            </div>
+        </div>
+        <style>
+            body {
+                background-color: black;
+                color: white;
+            }
+
+            #save {
+                color: black; 
+                background: gray; 
+                border-color: gray;
+            }
+
+            div {
+                display: block;
+            }
+
+            input[type="text"] {
+                color: red;
+            }
+        </style>
+        <script src="settings.js"></script>
+    </body>
+</html>
