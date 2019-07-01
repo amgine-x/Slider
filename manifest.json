@@ -35,5 +35,9 @@
     "default_popup": "popup.html"
   },
 
-  "options_page": "settings.html"
+  "options_page": "settings.html",
+
+  "icons": {
+    "128":  "Group 10.png"
+  }
 }
