@@ -1,3 +1,4 @@
+alert('hello world');
 
 function addForeach(o) {
     o.forEach = function (cb) {
